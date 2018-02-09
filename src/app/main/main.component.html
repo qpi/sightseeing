@@ -1,0 +1,28 @@
+<p>main works!</p>
+<div>
+	<yaga-map [zoom]="11" [lat]=latitude [lng]=longitude [minZoom]="1"
+		[maxZoom]="16" (click)="handleEvent('click', $event);">
+		<yaga-zoom-control></yaga-zoom-control>
+		<yaga-scale-control [metric]="true" [imperial]="false"></yaga-scale-control>
+		<ng-container *ngFor="let wayPoint of wayPoints$ | async">
+			<yaga-marker [lat]=wayPoint.latitude [lng]=wayPoint.longitude>
+				<yaga-icon [iconUrl]=markerIcon
+					[iconSize]="[25, 41]"
+					[iconAnchor]="[13, 41]"
+					[shadowUrl]=markerIconShadow></yaga-icon>
+				<yaga-popup>This is the content of the popup</yaga-popup>
+			</yaga-marker>
+		</ng-container>
+		<yaga-polyline [latLngs]=latlngs></yaga-polyline>
+		<yaga-tile-layer [url]="'http://a.tile.osm.org/{z}/{x}/{y}.png'"></yaga-tile-layer>
+	</yaga-map>
+
+<!-- 	<ng-container *ngFor="let wayPoint of wayPoints$; let i = index; trackBy:trackByIndex"> -->
+<!-- 		<input type="text" [(ngModel)]="wayPoint." />|<input type="text"[(ngModel)]="wayPoints[i].lng" /><br /> -->
+<!-- 	</ng-container> -->
+
+
+<input type="text" [(ngModel)]="wayPoint2Add['latitude']" />|<input type="text"[(ngModel)]="wayPoint2Add['longitude']" />
+<button (click)="addWayPoint()" >add</button>
+
+</div>
