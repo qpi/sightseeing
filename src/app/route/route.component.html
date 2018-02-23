@@ -1,0 +1,76 @@
+<mat-sidenav-container>
+	<mat-sidenav #sidenav mode="side" opened>
+	
+		<mat-card>
+  			<mat-form-field>
+    			<input matInput placeholder="Free time You have?" type="number">
+    			<span matSuffix>&nbsp;minute</span>
+  			</mat-form-field>
+  		
+  			<div layout="row">
+				<mat-form-field flex>
+					<input matInput placeholder="Start coordinates" readonly [value]="startPoint">
+	  			</mat-form-field>
+	  			<ng-container flex>
+	  				<mat-button-toggle value="left" [disabled]="pickStartIsDisabled" [checked]="pickStartButton" (change)="pickStartChange($event)">
+      					<mat-icon>add_location</mat-icon>
+    				</mat-button-toggle>
+	  			</ng-container>
+	  		</div>
+	  		<div layout="row">
+				<mat-form-field flex>
+					<input matInput placeholder="End coordinates" readonly [value]="endPoint">
+	  			</mat-form-field>
+	  			<ng-container flex>
+	  				<mat-button-toggle value="left" [disabled]="pickEndIsDisabled" [checked]="pickEndButton" (change)="pickEndChange($event)">
+      					<mat-icon>add_location</mat-icon>
+    				</mat-button-toggle>
+	  			</ng-container>
+	  		</div>
+  			<br>
+
+  			<mat-menu #rootMenu="matMenu">
+  				<ng-container *ngFor="let poiCategory of poiCategories">
+  					<button mat-menu-item [matMenuTriggerFor]="submenu">{{poiCategory.name}}</button>
+  					<mat-menu #submenu="matMenu">
+						<ng-container *ngFor="let poiType of poiCategory.getIds()">
+							<button mat-menu-item (click)="poiTypeToCollect = poiType">{{poiType.title}}</button>
+						</ng-container>
+					</mat-menu>
+<!--   				<button mat-menu-item [matMenuTriggerFor]="amenitySubMenu">{{poiCategories[0].name}}</button> -->
+<!--   				<button mat-menu-item [matMenuTriggerFor]="tourismSubMenu">{{poiCategories[1].name}}</button> -->
+<!--   				<button mat-menu-item [matMenuTriggerFor]="leisureSubMenu">{{poiCategories[2].name}}</button> -->
+				</ng-container>
+			</mat-menu>
+
+			<mat-menu #amenity="matMenu">
+				<ng-container *ngFor="let poiType of poiCategories[0].getIds()">
+					<button mat-menu-item (click)="poiTypeToCollect = poiType">{{poiType.title}}</button>
+				</ng-container>
+			</mat-menu>
+			
+			<mat-menu #tourism="matMenu">
+				<ng-container *ngFor="let poiType of poiCategories[1].getIds()">
+					<button mat-menu-item (click)="poiTypeToCollect = poiType">{{poiType.title}}</button>
+				</ng-container>
+			</mat-menu>
+			
+			<mat-menu #leisure="matMenu">
+				<ng-container *ngFor="let poiType of poiCategories[2].getIds()">
+					<button mat-menu-item (click)="poiTypeToCollect = poiType">{{poiType.title}}</button>
+				</ng-container>
+			</mat-menu>
+
+			<div layout="row">
+				<ng-container flex>
+					<button mat-raised-button [matMenuTriggerFor]="rootMenu">Choose POIs</button>
+				</ng-container>
+				<ng-container flex *ngIf="poiTypeToCollect !== null">
+					<button mat-button (click)="poiTypeToCollect = null">{{poiTypeToCollect.title}}<mat-icon>clear</mat-icon></button>
+				</ng-container>
+			</div>
+		</mat-card>
+	
+	</mat-sidenav>
+	<app-map></app-map>
+</mat-sidenav-container>

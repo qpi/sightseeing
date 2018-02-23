@@ -1,0 +1,24 @@
+mat-sidenav-container {
+	height: 91vh;
+	mat-sidenav {
+		min-width: 200px !important;
+	    width: 85vw !important;
+	    max-width: 400px !important;
+	    input {
+	    	text-align: right;
+	    	&[type=number] {
+	    		&::-webkit-outer-spin-button,
+	    		&::-webkit-inner-spin-button {
+	    			display: none;
+	    		}
+	    	}
+	    }
+	}
+}
+
+/*
+mat-sidenav, 
+mat-sidenav.mat-locked-open, 
+mat-sidenav.mat-closed.mat-locked-open-add-active {
+    
+} */
