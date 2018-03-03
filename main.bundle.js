@@ -81,7 +81,7 @@ var HomeComponent = /** @class */ (function () {
 /***/ "../../../../../src/app/map/map.component.html":
 /***/ (function(module, exports) {
 
-module.exports = "<button mat-button [matMenuTriggerFor]=\"contextMenu\" id=\"contextMenuButton\" style=\"display:none;\">Menu</button>\n<mat-menu #contextMenu=\"matMenu\" (close)=\"onContextMenuClosed()\">\n\t<button mat-menu-item (click)=\"setStartPoint(pickPointForContextMenu)\">Route from here</button>\n\t<button mat-menu-item (click)=\"setEndPoint(pickPointForContextMenu)\">Route to here</button>\n</mat-menu>\n<yaga-map [zoom]=\"11\" [lat]=latitude [lng]=longitude [minZoom]=\"1\"\n[maxZoom]=\"16\"\n(contextmenu)=\"handleEvent($event);\">\n\t<yaga-zoom-control></yaga-zoom-control>\n\t<yaga-scale-control [metric]=\"true\" [imperial]=\"false\"></yaga-scale-control>\n\t<ng-container *ngIf=\"startPoint$ | async; let wayPoint;\">\n\t\t<yaga-marker [lat]=wayPoint.latitude [lng]=wayPoint.longitude>\n\t\t\t<yaga-icon [iconUrl]=\"markerIconRed\"\n\t\t\t\t[iconSize]=\"[25, 41]\"\n\t\t\t\t[iconAnchor]=\"[13, 41]\"\n\t\t\t\t[shadowUrl]=markerIconShadow></yaga-icon>\n\t\t\t<yaga-popup>This is the start point</yaga-popup>\n\t\t</yaga-marker>\n\t</ng-container>\n\t<ng-container *ngIf=\"endPoint$ | async; let wayPoint;\">\n\t\t<yaga-marker [lat]=wayPoint.latitude [lng]=wayPoint.longitude>\n\t\t\t<yaga-icon [iconUrl]=\"markerIconGreen\"\n\t\t\t\t[iconSize]=\"[25, 41]\"\n\t\t\t\t[iconAnchor]=\"[13, 41]\"\n\t\t\t\t[shadowUrl]=markerIconShadow></yaga-icon>\n\t\t\t<yaga-popup>This is the end point</yaga-popup>\n\t\t</yaga-marker>\n\t</ng-container>\n\t<ng-container *ngIf=\"!endPoint$ | async\">\n\t</ng-container>\n\t<ng-container *ngFor=\"let poi of intermediatePoints$ | async\">\n\t\t<yaga-marker [lat]=poi.latitude [lng]=poi.longitude>\n\t\t\t<yaga-icon [iconUrl]=markerIcon\n\t\t\t\t[iconSize]=\"[25, 41]\"\n\t\t\t\t[iconAnchor]=\"[13, 41]\"\n\t\t\t\t[shadowUrl]=markerIconShadow></yaga-icon>\n\t\t\t<yaga-popup>{{ poi.type.category.name }}/{{ poi.type.title }}<br>{{ poi.name }}</yaga-popup>\n\t\t</yaga-marker>\n\t</ng-container>\n\t<ng-container *ngFor=\"let poi of poiList\">\n\t\t<yaga-marker [lat]=poi.latitude [lng]=poi.longitude>\n\t\t\t<yaga-icon [iconUrl]=\"markerIconYellow\"\n\t\t\t\t[iconSize]=\"[25, 41]\"\n\t\t\t\t[iconAnchor]=\"[13, 41]\"\n\t\t\t\t[shadowUrl]=markerIconShadow></yaga-icon>\n\t\t\t<yaga-popup>\n\t\t\t\t{{poi.name}}<br>\n\t\t\t\t<button mat-button color=\"primary\" (click)=\"addIntermediatePoint($event, poi)\">add to route</button>\n\t\t\t</yaga-popup>\n\t\t</yaga-marker>\n\t</ng-container>\n\t<yaga-polyline [latLngs]=latlngs></yaga-polyline>\n\t<yaga-tile-layer [url]=\"'https://a.tile.openstreetmap.org/{z}/{x}/{y}.png'\"></yaga-tile-layer>\n</yaga-map>"
+module.exports = "<button mat-button [matMenuTriggerFor]=\"contextMenu\" id=\"contextMenuButton\" style=\"display:none;\">Menu</button>\n<mat-menu #contextMenu=\"matMenu\" (close)=\"onContextMenuClosed()\">\n\t<button mat-menu-item (click)=\"setStartPoint(pickPointForContextMenu)\">Route from here</button>\n\t<button mat-menu-item *ngIf=\"!isRoundTrip\" (click)=\"setEndPoint(pickPointForContextMenu)\">Route to here</button>\n</mat-menu>\n<yaga-map [zoom]=\"11\" [lat]=latitude [lng]=longitude [minZoom]=\"1\"\n[maxZoom]=\"16\"\n(contextmenu)=\"handleEvent($event);\">\n\t<yaga-zoom-control></yaga-zoom-control>\n\t<yaga-scale-control [metric]=\"true\" [imperial]=\"false\"></yaga-scale-control>\n\t<ng-container *ngIf=\"startPoint$ | async; let wayPoint;\">\n\t\t<yaga-marker [lat]=wayPoint.latitude [lng]=wayPoint.longitude>\n\t\t\t<yaga-icon [iconUrl]=\"markerIconRed\"\n\t\t\t\t[iconSize]=\"[25, 41]\"\n\t\t\t\t[iconAnchor]=\"[13, 41]\"\n\t\t\t\t[shadowUrl]=markerIconShadow></yaga-icon>\n\t\t\t<yaga-popup>This is the start point</yaga-popup>\n\t\t</yaga-marker>\n\t</ng-container>\n\t<ng-container *ngIf=\"endPoint$ | async; let wayPoint;\">\n\t\t<yaga-marker [lat]=wayPoint.latitude [lng]=wayPoint.longitude>\n\t\t\t<yaga-icon [iconUrl]=\"markerIconGreen\"\n\t\t\t\t[iconSize]=\"[25, 41]\"\n\t\t\t\t[iconAnchor]=\"[13, 41]\"\n\t\t\t\t[shadowUrl]=markerIconShadow></yaga-icon>\n\t\t\t<yaga-popup>This is the end point</yaga-popup>\n\t\t</yaga-marker>\n\t</ng-container>\n\t<ng-container *ngIf=\"!endPoint$ | async\">\n\t</ng-container>\n\t<ng-container *ngFor=\"let poi of intermediatePoints$ | async\">\n\t\t<yaga-marker [lat]=poi.latitude [lng]=poi.longitude>\n\t\t\t<yaga-icon [iconUrl]=markerIcon\n\t\t\t\t[iconSize]=\"[25, 41]\"\n\t\t\t\t[iconAnchor]=\"[13, 41]\"\n\t\t\t\t[shadowUrl]=markerIconShadow></yaga-icon>\n\t\t\t<yaga-popup>\n\t\t\t\t{{ poi.type.category.name }}/{{ poi.type.title }}<br>\n\t\t\t\t<strong>{{ poi.name }}</strong>\n\t\t\t\t<ul>\n\t\t\t\t<ng-container *ngIf=\"poi.address\">\n\t\t\t\t\t<li><strong>address: </strong> {{poi.address}}</li>\n\t\t\t\t</ng-container>\n\t\t\t\t<ng-container *ngIf=\"poi.email\">\n\t\t\t\t\t<li><strong>email: </strong> {{poi.email}}</li>\n\t\t\t\t</ng-container>\n\t\t\t\t<ng-container *ngIf=\"poi.facebook\">\n\t\t\t\t\t<li><strong>facebook: </strong> {{poi.facebook}}</li>\n\t\t\t\t</ng-container>\n\t\t\t\t<ng-container *ngIf=\"poi.phone\">\n\t\t\t\t\t<li><strong>phone: </strong> {{poi.phone}}</li>\n\t\t\t\t</ng-container>\n\t\t\t\t<ng-container *ngIf=\"poi.website\">\n\t\t\t\t\t<li><strong>website: </strong> {{poi.website}}</li>\n\t\t\t\t</ng-container>\n\t\t\t\t</ul>\n\t\t\t</yaga-popup>\n\t\t</yaga-marker>\n\t</ng-container>\n\t<ng-container *ngFor=\"let poi of poiList\">\n\t\t<yaga-marker [lat]=poi.latitude [lng]=poi.longitude>\n\t\t\t<yaga-icon [iconUrl]=\"markerIconYellow\"\n\t\t\t\t[iconSize]=\"[25, 41]\"\n\t\t\t\t[iconAnchor]=\"[13, 41]\"\n\t\t\t\t[shadowUrl]=markerIconShadow></yaga-icon>\n\t\t\t<yaga-popup>\n\t\t\t\t{{ poi.type.category.name }}/{{ poi.type.title }}<br>\n\t\t\t\t<strong>{{ poi.name }}</strong>\n\t\t\t\t<ul>\n\t\t\t\t<ng-container *ngIf=\"poi.address\">\n\t\t\t\t\t<li><strong>address: </strong> {{poi.address}}</li>\n\t\t\t\t</ng-container>\n\t\t\t\t<ng-container *ngIf=\"poi.email\">\n\t\t\t\t\t<li><strong>email: </strong> {{poi.email}}</li>\n\t\t\t\t</ng-container>\n\t\t\t\t<ng-container *ngIf=\"poi.facebook\">\n\t\t\t\t\t<li><strong>facebook: </strong> {{poi.facebook}}</li>\n\t\t\t\t</ng-container>\n\t\t\t\t<ng-container *ngIf=\"poi.phone\">\n\t\t\t\t\t<li><strong>phone: </strong> {{poi.phone}}</li>\n\t\t\t\t</ng-container>\n\t\t\t\t<ng-container *ngIf=\"poi.website\">\n\t\t\t\t\t<li><strong>website: </strong> {{poi.website}}</li>\n\t\t\t\t</ng-container>\n\t\t\t\t</ul>\n\t\t\t\t<button mat-button color=\"primary\" (click)=\"addIntermediatePoint($event, poi)\">add to route</button>\n\t\t\t</yaga-popup>\n\t\t</yaga-marker>\n\t</ng-container>\n\t<yaga-polyline [latLngs]=latlngs></yaga-polyline>\n\t<yaga-tile-layer [url]=\"'https://a.tile.openstreetmap.org/{z}/{x}/{y}.png'\"></yaga-tile-layer>\n</yaga-map>"
 
 /***/ }),
 
@@ -93,7 +93,7 @@ exports = module.exports = __webpack_require__("../../../../css-loader/lib/css-b
 
 
 // module
-exports.push([module.i, ".yaga-map {\n  min-height: 91vh;\n}\n", ""]);
+exports.push([module.i, ".yaga-map {\n  min-height: 91vh;\n}\nyaga-popup ul {\n  padding: 0;\n}\nyaga-popup ul li {\n  list-style: none;\n}\n", ""]);
 
 // exports
 
@@ -147,6 +147,13 @@ var MapComponent = /** @class */ (function () {
         //  public pickType: PickType;
         this.poiList = new Array();
     }
+    Object.defineProperty(MapComponent.prototype, "isRoundTrip", {
+        get: function () {
+            return this._isRoundTrip;
+        },
+        enumerable: true,
+        configurable: true
+    });
     MapComponent.prototype.addIntermediatePoint = function (event, poi) {
         this._routeService.addIntermediatePoint(poi);
     };
@@ -162,14 +169,13 @@ var MapComponent = /** @class */ (function () {
         menu.style.left = event.containerPoint.x + 5 + 'px';
         menu.style.top = event.containerPoint.y + 5 + 'px';
         this.pickPointForContextMenu = new __WEBPACK_IMPORTED_MODULE_4__waypoint__["a" /* WayPoint */](Number((event.latlng.lat).toFixed(this.pickCoordintePrecision)), Number((event.latlng.lng).toFixed(this.pickCoordintePrecision)));
-        console.log(this.contextMenu);
         this.contextMenu.openMenu();
     };
     MapComponent.prototype.setStartPoint = function (wayPoint) {
-        this._routeService.addStartPoint(wayPoint);
+        this._routeService.startPoint = wayPoint;
     };
     MapComponent.prototype.setEndPoint = function (wayPoint) {
-        this._routeService.addEndPoint(wayPoint);
+        this._routeService.endPoint = wayPoint;
     };
     MapComponent.prototype.onContextMenuClosed = function () {
         var menu = document.getElementById('contextMenuButton');
@@ -182,6 +188,7 @@ var MapComponent = /** @class */ (function () {
         this.startPoint$ = this._routeService.startPoint$;
         this.intermediatePoints$ = this._routeService.intermediatePoints$;
         this.endPoint$ = this._routeService.endPoint$;
+        this._routeService.isRoundTrip$.subscribe(function (isRoundTrip) { return _this._isRoundTrip = isRoundTrip; });
         this._routeService.routeCoordinates$.subscribe(function (routeData) {
             _this.latlngs = routeData
                 .map(function (wayPoint) { return [wayPoint.latitude, wayPoint.longitude]; });
@@ -235,29 +242,31 @@ var MaterialModule = /** @class */ (function () {
             imports: [
                 __WEBPACK_IMPORTED_MODULE_1__angular_material__["a" /* MatButtonModule */],
                 __WEBPACK_IMPORTED_MODULE_1__angular_material__["b" /* MatButtonToggleModule */],
-                __WEBPACK_IMPORTED_MODULE_1__angular_material__["j" /* MatSidenavModule */],
-                __WEBPACK_IMPORTED_MODULE_1__angular_material__["e" /* MatIconModule */],
-                __WEBPACK_IMPORTED_MODULE_1__angular_material__["m" /* MatToolbarModule */],
-                __WEBPACK_IMPORTED_MODULE_1__angular_material__["d" /* MatFormFieldModule */],
+                __WEBPACK_IMPORTED_MODULE_1__angular_material__["k" /* MatSidenavModule */],
+                __WEBPACK_IMPORTED_MODULE_1__angular_material__["f" /* MatIconModule */],
+                __WEBPACK_IMPORTED_MODULE_1__angular_material__["n" /* MatToolbarModule */],
+                __WEBPACK_IMPORTED_MODULE_1__angular_material__["e" /* MatFormFieldModule */],
                 __WEBPACK_IMPORTED_MODULE_1__angular_material__["c" /* MatCardModule */],
-                __WEBPACK_IMPORTED_MODULE_1__angular_material__["f" /* MatInputModule */],
-                __WEBPACK_IMPORTED_MODULE_1__angular_material__["h" /* MatMenuModule */],
-                __WEBPACK_IMPORTED_MODULE_1__angular_material__["i" /* MatSelectModule */],
-                __WEBPACK_IMPORTED_MODULE_1__angular_material__["l" /* MatSnackBarModule */]
+                __WEBPACK_IMPORTED_MODULE_1__angular_material__["g" /* MatInputModule */],
+                __WEBPACK_IMPORTED_MODULE_1__angular_material__["i" /* MatMenuModule */],
+                __WEBPACK_IMPORTED_MODULE_1__angular_material__["j" /* MatSelectModule */],
+                __WEBPACK_IMPORTED_MODULE_1__angular_material__["d" /* MatCheckboxModule */],
+                __WEBPACK_IMPORTED_MODULE_1__angular_material__["m" /* MatSnackBarModule */]
             ],
             exports: [
                 __WEBPACK_IMPORTED_MODULE_1__angular_material__["a" /* MatButtonModule */],
                 __WEBPACK_IMPORTED_MODULE_1__angular_material__["b" /* MatButtonToggleModule */],
-                __WEBPACK_IMPORTED_MODULE_1__angular_material__["j" /* MatSidenavModule */],
-                __WEBPACK_IMPORTED_MODULE_1__angular_material__["e" /* MatIconModule */],
-                __WEBPACK_IMPORTED_MODULE_1__angular_material__["m" /* MatToolbarModule */],
-                __WEBPACK_IMPORTED_MODULE_1__angular_material__["d" /* MatFormFieldModule */],
+                __WEBPACK_IMPORTED_MODULE_1__angular_material__["k" /* MatSidenavModule */],
+                __WEBPACK_IMPORTED_MODULE_1__angular_material__["f" /* MatIconModule */],
+                __WEBPACK_IMPORTED_MODULE_1__angular_material__["n" /* MatToolbarModule */],
+                __WEBPACK_IMPORTED_MODULE_1__angular_material__["e" /* MatFormFieldModule */],
                 __WEBPACK_IMPORTED_MODULE_1__angular_material__["c" /* MatCardModule */],
-                __WEBPACK_IMPORTED_MODULE_1__angular_material__["f" /* MatInputModule */],
-                __WEBPACK_IMPORTED_MODULE_1__angular_material__["h" /* MatMenuModule */],
-                __WEBPACK_IMPORTED_MODULE_1__angular_material__["i" /* MatSelectModule */],
-                __WEBPACK_IMPORTED_MODULE_1__angular_material__["g" /* MatListModule */],
-                __WEBPACK_IMPORTED_MODULE_1__angular_material__["l" /* MatSnackBarModule */]
+                __WEBPACK_IMPORTED_MODULE_1__angular_material__["g" /* MatInputModule */],
+                __WEBPACK_IMPORTED_MODULE_1__angular_material__["i" /* MatMenuModule */],
+                __WEBPACK_IMPORTED_MODULE_1__angular_material__["j" /* MatSelectModule */],
+                __WEBPACK_IMPORTED_MODULE_1__angular_material__["h" /* MatListModule */],
+                __WEBPACK_IMPORTED_MODULE_1__angular_material__["d" /* MatCheckboxModule */],
+                __WEBPACK_IMPORTED_MODULE_1__angular_material__["m" /* MatSnackBarModule */]
             ],
             declarations: []
         })
@@ -588,7 +597,6 @@ var PoiCategory = /** @class */ (function () {
         this._enum = poiCategoryEnum;
         for (var item in this._enum) {
             if (this._enum.hasOwnProperty(item)) {
-                console.log(item, this._enum, this._enum[item]);
                 this.typeList.push(new __WEBPACK_IMPORTED_MODULE_0__poitype__["a" /* PoiType */](item, this, this._enum[item]));
             }
         }
@@ -657,6 +665,16 @@ var PoiService = /** @class */ (function () {
                     leftBottomLongitude = endPoint.longitude;
                     rightTopLongitude = startPoint.longitude;
                 }
+                // when the start and the end pont Longitude are too close together
+                if ((leftBottomLongitude - rightTopLongitude) < 0.005) {
+                    leftBottomLongitude -= 0.01;
+                    rightTopLongitude += 0.01;
+                }
+                // when the start and the end pont Longitude are too close together
+                if ((leftBottomLatitude - rightTopLatitude) < 0.005) {
+                    leftBottomLatitude -= 0.01;
+                    rightTopLatitude += 0.01;
+                }
                 leftBottomLongitude -= 0.01;
                 leftBottomLatitude -= 0.01;
                 rightTopLongitude += 0.01;
@@ -665,9 +683,36 @@ var PoiService = /** @class */ (function () {
                     var poiList = res['elements'].reduce(function (list, element) {
                         if (element['tags'] !== undefined &&
                             element['tags']['name'] !== undefined) {
-                            return list.concat([
-                                new __WEBPACK_IMPORTED_MODULE_1__poi__["a" /* Poi */](poiType, element['id'], element['lat'], element['lon'], element['tags']['name'])
-                            ]);
+                            var poi = new __WEBPACK_IMPORTED_MODULE_1__poi__["a" /* Poi */](poiType, element['id'], element['lat'], element['lon'], element['tags']['name']);
+                            if (element['tags']['name'] !== undefined) {
+                                poi.email = element['tags']['email'];
+                            }
+                            if (element['tags']['facebook'] !== undefined) {
+                                poi.facebook = element['tags']['facebook'];
+                            }
+                            if (element['tags']['phone'] !== undefined) {
+                                poi.phone = element['tags']['phone'];
+                            }
+                            if (element['tags']['website'] !== undefined) {
+                                poi.website = element['tags']['website'];
+                            }
+                            var address = '';
+                            if (element['tags']['addr:postcode'] !== undefined) {
+                                address = element['tags']['addr:postcode'];
+                            }
+                            if (element['tags']['addr:city'] !== undefined) {
+                                address += ' ' + element['tags']['addr:city'];
+                            }
+                            if (element['tags']['addr:street'] !== undefined) {
+                                address += ', ' + element['tags']['addr:street'];
+                            }
+                            if (element['tags']['addr:housenumber'] !== undefined) {
+                                address += ' ' + element['tags']['addr:housenumber'];
+                            }
+                            if (address.length > 0) {
+                                poi.address = address;
+                            }
+                            return list.concat([poi]);
                         }
                         return list;
                     }, []);
@@ -686,7 +731,7 @@ var PoiService = /** @class */ (function () {
     };
     PoiService = __decorate([
         Object(__WEBPACK_IMPORTED_MODULE_2__angular_core__["Injectable"])(),
-        __metadata("design:paramtypes", [__WEBPACK_IMPORTED_MODULE_0__overpass_service__["a" /* OverpassService */], __WEBPACK_IMPORTED_MODULE_3__angular_material__["k" /* MatSnackBar */]])
+        __metadata("design:paramtypes", [__WEBPACK_IMPORTED_MODULE_0__overpass_service__["a" /* OverpassService */], __WEBPACK_IMPORTED_MODULE_3__angular_material__["l" /* MatSnackBar */]])
     ], PoiService);
     return PoiService;
 }());
@@ -714,15 +759,93 @@ var __extends = (this && this.__extends) || (function () {
 
 var Poi = /** @class */ (function (_super) {
     __extends(Poi, _super);
-    function Poi(type, id, latitude, longitude, name) {
-        var _this = _super.call(this, latitude, longitude) || this;
-        _this.type = type;
-        _this.id = id;
-        _this.latitude = latitude;
-        _this.longitude = longitude;
-        _this.name = name;
+    function Poi(_type, _id, _latitude, _longitude, _name) {
+        if (_id === void 0) { _id = null; }
+        if (_name === void 0) { _name = null; }
+        var _this = _super.call(this, _latitude, _longitude) || this;
+        _this._type = _type;
+        _this._id = _id;
+        _this._latitude = _latitude;
+        _this._longitude = _longitude;
+        _this._name = _name;
+        _this._address = null;
+        _this._email = null;
+        _this._facebook = null;
+        _this._phone = null;
+        _this._website = null;
         return _this;
     }
+    Object.defineProperty(Poi.prototype, "type", {
+        get: function () {
+            return this._type;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Poi.prototype, "id", {
+        get: function () {
+            return this._id;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Poi.prototype, "name", {
+        get: function () {
+            return this._name;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Poi.prototype, "address", {
+        get: function () {
+            return this._address;
+        },
+        set: function (address) {
+            this._address = address;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Poi.prototype, "email", {
+        get: function () {
+            return this._email;
+        },
+        set: function (email) {
+            this._email = email;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Poi.prototype, "facebook", {
+        get: function () {
+            return this._facebook;
+        },
+        set: function (facebook) {
+            this._facebook = facebook;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Poi.prototype, "phone", {
+        get: function () {
+            return this._phone;
+        },
+        set: function (phone) {
+            this._phone = phone;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Poi.prototype, "website", {
+        get: function () {
+            return this._website;
+        },
+        set: function (website) {
+            this._website = website;
+        },
+        enumerable: true,
+        configurable: true
+    });
     return Poi;
 }(__WEBPACK_IMPORTED_MODULE_0__waypoint__["a" /* WayPoint */]));
 
@@ -751,7 +874,7 @@ var PoiType = /** @class */ (function () {
 /***/ "../../../../../src/app/route/route.component.html":
 /***/ (function(module, exports) {
 
-module.exports = "<mat-sidenav-container>\n\t<mat-sidenav #sidenav mode=\"side\" opened>\n\t\n\t\t<mat-card>\n  \t\t\t<mat-form-field>\n    \t\t\t<input matInput placeholder=\"Free time You have?\" type=\"number\" [formControl]=\"freeTimeField\">\n    \t\t\t<span matSuffix>&nbsp;minute</span>\n<!--     \t\t\t<mat-hint align=\"end\" style=\"{color: '#f44336'}\"> -->\n<!-- \t\t\t\t\t<span aria-live=\"polite\">The time is not enough for the trip!</span> -->\n<!-- \t\t\t\t\t<mat-icon>error</mat-icon> -->\n<!--             \t</mat-hint> -->\n  \t\t\t</mat-form-field>  \t\t\n  \t\t\t<div fxLayout=\"row\">\n  \t\t\t\t<mat-input-container fxFlex>\n\t\t\t\t\t<input matInput placeholder=\"Start coordinates\" readonly [value]=\"startPoint\">\n\t  \t\t\t</mat-input-container>\n  \t\t\t\t<mat-input-container fxFlex>\n\t\t\t\t\t<input matInput placeholder=\"End coordinates\" readonly [value]=\"endPoint\">\n\t  \t\t\t</mat-input-container>\n\t  \t\t</div>\n  \t\t\t<br>\n\n<!--   \t\t\t<mat-menu #rootMenu=\"matMenu\"> -->\n<!--   \t\t\t\t<ng-container *ngFor=\"let poiCategory of poiCategories\"> -->\n<!--   \t\t\t\t\t<button mat-menu-item [matMenuTriggerFor]=\"submenu\">{{poiCategory.name}}</button> -->\n<!--   \t\t\t\t\t<mat-menu #submenu=\"matMenu\"> -->\n<!-- \t\t\t\t\t\t<ng-container *ngFor=\"let poiType of poiCategory.getIds()\"> -->\n<!-- \t\t\t\t\t\t\t<button mat-menu-item (click)=\"poiTypeToCollect = poiType\">{{poiType.title}}</button> -->\n<!-- \t\t\t\t\t\t</ng-container> -->\n<!-- \t\t\t\t\t</mat-menu> -->\n<!--   \t\t\t\t<button mat-menu-item [matMenuTriggerFor]=\"amenitySubMenu\">{{poiCategories[0].name}}</button> -->\n<!--   \t\t\t\t<button mat-menu-item [matMenuTriggerFor]=\"tourismSubMenu\">{{poiCategories[1].name}}</button> -->\n<!--   \t\t\t\t<button mat-menu-item [matMenuTriggerFor]=\"leisureSubMenu\">{{poiCategories[2].name}}</button> -->\n<!-- \t\t\t\t</ng-container> -->\n<!-- \t\t\t</mat-menu> -->\n\n<!-- \t\t\t<mat-menu #amenity=\"matMenu\"> -->\n<!-- \t\t\t\t<ng-container *ngFor=\"let poiType of poiCategories[0].getIds()\"> -->\n<!-- \t\t\t\t\t<button mat-menu-item (click)=\"poiTypeToCollect = poiType\">{{poiType.title}}</button> -->\n<!-- \t\t\t\t</ng-container> -->\n<!-- \t\t\t</mat-menu> -->\n\t\t\t\n<!-- \t\t\t<mat-menu #tourism=\"matMenu\"> -->\n<!-- \t\t\t\t<ng-container *ngFor=\"let poiType of poiCategories[1].getIds()\"> -->\n<!-- \t\t\t\t\t<button mat-menu-item (click)=\"poiTypeToCollect = poiType\">{{poiType.title}}</button> -->\n<!-- \t\t\t\t</ng-container> -->\n<!-- \t\t\t</mat-menu> -->\n\t\t\t\n<!-- \t\t\t<mat-menu #leisure=\"matMenu\"> -->\n<!-- \t\t\t\t<ng-container *ngFor=\"let poiType of poiCategories[2].getIds()\"> -->\n<!-- \t\t\t\t\t<button mat-menu-item (click)=\"poiTypeToCollect = poiType\">{{poiType.title}}</button> -->\n<!-- \t\t\t\t</ng-container> -->\n<!-- \t\t\t</mat-menu> -->\n\n\t\t\t<div fxLayout=\"row\" fxLayoutAlign=\"end center\" >\n<!-- \t\t\t\t<mat-form-field fxFlex> -->\n<!-- \t\t\t\t  <mat-select placeholder=\"choose POI type\" [(ngModel)]=\"poiTypeToCollect\"> -->\n<!-- \t\t\t\t    <mat-option>-- None --</mat-option> -->\n<!-- \t\t\t\t    <ng-container *ngFor=\"let poiCategory of poiCategories\"> -->\n<!-- \t\t\t\t    \t<mat-optgroup [label]=\"poiCategory['name']\"> -->\n<!-- \t\t\t\t    \t\t<ng-container *ngFor=\"let poiType of poiCategory['ids']\"> -->\n<!-- \t\t\t\t    \t\t\t<mat-option [value]=\"poiType\">{{poiType['title']}}</mat-option> -->\n<!-- \t\t\t\t    \t\t</ng-container> -->\n<!-- \t\t\t\t    \t</mat-optgroup> -->\n<!-- \t\t\t\t    </ng-container> -->\n<!-- \t\t\t\t  </mat-select> -->\n<!-- \t\t\t\t</mat-form-field> -->\n\t\t\t\t<mat-form-field fxFlex>\n\t\t\t\t  <mat-select placeholder=\"choose POI type\" [(ngModel)]=\"poiTypeToCollect\">\n\t\t\t\t    <mat-option>-- None --</mat-option>\n\t\t\t\t    <ng-container *ngFor=\"let poiCategory of poiCategories\">\n\t\t\t\t    \t<mat-optgroup [label]=\"poiCategory.name\">\n\t\t\t\t    \t\t<ng-container *ngFor=\"let poiType of poiCategory.typeList\">\n\t\t\t\t    \t\t\t<mat-option [value]=\"poiType\">{{poiType.title}}</mat-option>\n\t\t\t\t    \t\t</ng-container>\n\t\t\t\t    \t</mat-optgroup>\n\t\t\t\t    </ng-container>\n\t\t\t\t  </mat-select>\n\t\t\t\t</mat-form-field>\n\t\t\t\t<div fxFlex>\n\t\t\t\t\t<button mat-raised-button (click)=\"poiTypeToCollect = null\">clear POIs</button>\n\t\t\t\t</div>\n\t\t\t\t\t\n\n\t\t\t</div>\n\t\t\t\n\t\t\t<div *ngIf=\"routeLength > 0\">\n\t\t\t\tRoute length is <strong>{{routeLength}} meter</strong> and the duration is <strong>{{routeDuration}}</strong> long\n\t\t\t</div>\n\t\t</mat-card>\n\t\t\n\t\n\t</mat-sidenav>\n\t<app-map></app-map>\n</mat-sidenav-container>"
+module.exports = "<mat-sidenav-container>\n\t<mat-sidenav #sidenav mode=\"side\" opened>\n\t\n\t\t<mat-card>\n  \t\t\t<mat-form-field>\n    \t\t\t<input matInput placeholder=\"Free time You have?\" type=\"number\" [formControl]=\"freeTimeField\">\n    \t\t\t<span matSuffix>&nbsp;minute</span>\n  \t\t\t</mat-form-field>  \t\t\n  \t\t\t<div fxLayout=\"row\">\n  \t\t\t\t<mat-input-container fxFlex>\n\t\t\t\t\t<input matInput placeholder=\"Start coordinates\" readonly [value]=\"startPoint\">\n\t  \t\t\t</mat-input-container>\n  \t\t\t\t<mat-input-container fxFlex *ngIf=\"!isRoundTrip\">\n\t\t\t\t\t<input matInput placeholder=\"End coordinates\" readonly [value]=\"endPoint\">\n\t  \t\t\t</mat-input-container>\n\t  \t\t</div>\n\t  \t\t<mat-checkbox [(ngModel)]=\"isRoundTrip\">Round trip</mat-checkbox>\n  \t\t\t<br>\n\t\t\t<div fxLayout=\"row\" fxLayoutAlign=\"end center\" >\n\t\t\t\t<mat-form-field fxFlex>\n\t\t\t\t  <mat-select placeholder=\"choose POI type\" [(ngModel)]=\"poiTypeToCollect\">\n\t\t\t\t    <mat-option>-- None --</mat-option>\n\t\t\t\t    <ng-container *ngFor=\"let poiCategory of poiCategories\">\n\t\t\t\t    \t<mat-optgroup [label]=\"poiCategory.name\">\n\t\t\t\t    \t\t<ng-container *ngFor=\"let poiType of poiCategory.typeList\">\n\t\t\t\t    \t\t\t<mat-option [value]=\"poiType\">{{poiType.title}}</mat-option>\n\t\t\t\t    \t\t</ng-container>\n\t\t\t\t    \t</mat-optgroup>\n\t\t\t\t    </ng-container>\n\t\t\t\t  </mat-select>\n\t\t\t\t</mat-form-field>\n\t\t\t\t<div fxFlex>\n\t\t\t\t\t<button mat-raised-button (click)=\"poiTypeToCollect = null\">clear POIs</button>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t\t<div *ngIf=\"routeLength > 0\">\n\t\t\t\tRoute length is <strong>{{routeLength}} meter</strong> and the duration is <strong>{{routeDuration}}</strong> long\n\t\t\t</div>\n\t\t</mat-card>\n\t\t\n\t\n\t</mat-sidenav>\n\t<app-map></app-map>\n</mat-sidenav-container>"
 
 /***/ }),
 
@@ -811,6 +934,7 @@ var RouteComponent = /** @class */ (function () {
         this._startPoint = null;
         this._endPoint = null;
         this._intermediatePoints = new Array();
+        this._isRoundTrip = false;
         this._routeLength = 0;
         this._routeDuration = 0;
         this._poiCategories = [new __WEBPACK_IMPORTED_MODULE_0__poi_poi_category_amenity__["a" /* PoiCategoryAmenity */](), new __WEBPACK_IMPORTED_MODULE_2__poi_poi_category_tourism__["a" /* PoiCategoryTourism */](), new __WEBPACK_IMPORTED_MODULE_1__poi_poi_category_leisure__["a" /* PoiCategoryLeisure */]()];
@@ -860,6 +984,16 @@ var RouteComponent = /** @class */ (function () {
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(RouteComponent.prototype, "isRoundTrip", {
+        get: function () {
+            return this._isRoundTrip;
+        },
+        set: function (isRoundTrip) {
+            this._routeService.isRoundTrip = isRoundTrip;
+        },
+        enumerable: true,
+        configurable: true
+    });
     Object.defineProperty(RouteComponent.prototype, "routeLength", {
         get: function () {
             return this._routeLength;
@@ -900,6 +1034,9 @@ var RouteComponent = /** @class */ (function () {
         });
         this._routeService.intermediatePoints$.subscribe(function (pois) {
             _this._intermediatePoints = pois;
+        });
+        this._routeService.isRoundTrip$.subscribe(function (isRoundTrip) {
+            _this._isRoundTrip = isRoundTrip;
         });
         this._routeService.typeToCollect$.subscribe(function (poiType) {
             _this._poiTypeToShow = poiType;
@@ -961,10 +1098,10 @@ var RouteService = /** @class */ (function () {
         this.startPoint$ = this._startPoint$.asObservable();
         this._endPoint$ = new __WEBPACK_IMPORTED_MODULE_4_rxjs__["BehaviorSubject"](null);
         this.endPoint$ = this._endPoint$.asObservable();
+        this._isRoundTrip$ = new __WEBPACK_IMPORTED_MODULE_4_rxjs__["BehaviorSubject"](false);
+        this.isRoundTrip$ = this._isRoundTrip$.asObservable();
         this._intermediatePoints$ = new __WEBPACK_IMPORTED_MODULE_4_rxjs__["BehaviorSubject"]([]);
         this.intermediatePoints$ = this._intermediatePoints$.asObservable();
-        this._roundtrip$ = new __WEBPACK_IMPORTED_MODULE_4_rxjs__["BehaviorSubject"](false);
-        this.roundtrip$ = this._roundtrip$.asObservable();
         this._routeCoordinates$ = new __WEBPACK_IMPORTED_MODULE_4_rxjs__["BehaviorSubject"]([]);
         this.routeCoordinates$ = this._routeCoordinates$.asObservable();
         this._routeLength$ = new __WEBPACK_IMPORTED_MODULE_4_rxjs__["BehaviorSubject"](0);
@@ -978,10 +1115,12 @@ var RouteService = /** @class */ (function () {
             _this.calculateRoute();
         });
         this.intermediatePoints$.subscribe(function (data) {
-            console.log('calculate');
             _this.calculateRoute();
         });
-        this.roundtrip$.subscribe(function (data) {
+        this.isRoundTrip$.subscribe(function (data) {
+            if (_this.startPoint !== null) {
+                _this.endPoint = _this.startPoint;
+            }
             _this.calculateRoute();
         });
         this.typeToCollect$.subscribe(function (poiType) { return _this._poiService.updatePoiList(poiType, _this.startPoint, _this.endPoint); });
@@ -990,12 +1129,28 @@ var RouteService = /** @class */ (function () {
         get: function () {
             return this._startPoint$.value;
         },
+        set: function (wayPoint) {
+            this._startPoint$.next(wayPoint);
+        },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(RouteService.prototype, "endPoint", {
         get: function () {
             return this._endPoint$.value;
+        },
+        set: function (wayPoint) {
+            this._endPoint$.next(wayPoint);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(RouteService.prototype, "isRoundTrip", {
+        get: function () {
+            return this._isRoundTrip$.value;
+        },
+        set: function (isRoundTrip) {
+            this._isRoundTrip$.next(isRoundTrip);
         },
         enumerable: true,
         configurable: true
@@ -1008,12 +1163,6 @@ var RouteService = /** @class */ (function () {
             this._intermediatePoints$.next(this._intermediatePoints$.value.concat([newPoi]));
         }
     };
-    RouteService.prototype.addStartPoint = function (wayPoint) {
-        this._startPoint$.next(wayPoint);
-    };
-    RouteService.prototype.addEndPoint = function (wayPoint) {
-        this._endPoint$.next(wayPoint);
-    };
     RouteService.prototype.calculateRoute = function () {
         var _this = this;
         var wayPoints = [];
@@ -1021,15 +1170,16 @@ var RouteService = /** @class */ (function () {
             wayPoints.push(this._startPoint$.value);
         }
         wayPoints = wayPoints.concat(this._intermediatePoints$.value);
-        if (!this._roundtrip$.value && this._endPoint$.value !== null) {
+        if (!this.isRoundTrip && this.endPoint !== null) {
             wayPoints.push(this._endPoint$.value);
         }
         this._poiService.updatePoiList(this._typeToCollect$.value, this.startPoint, this.endPoint);
         // minimally 2 point is mandatory for a route
         if (wayPoints.length < 2) {
+            this._routeCoordinates$.next(new Array());
             return;
         }
-        this._osrmService.getRoute(wayPoints, this._roundtrip$.value).subscribe(function (data) {
+        this._osrmService.getRoute(wayPoints, this.isRoundTrip).subscribe(function (data) {
             _this._routeLength$.next(data['trips'][0]['distance']);
             var latlngs = data['trips'][0].legs.reduce(function (legsArray, leg) {
                 return legsArray.concat(leg.steps.reduce(function (stepsArray, step) {
@@ -1234,10 +1384,24 @@ var SightseeingModule = /** @class */ (function () {
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return WayPoint; });
 var WayPoint = /** @class */ (function () {
-    function WayPoint(latitude, longitude) {
-        this.latitude = latitude;
-        this.longitude = longitude;
+    function WayPoint(_latitude, _longitude) {
+        this._latitude = _latitude;
+        this._longitude = _longitude;
     }
+    Object.defineProperty(WayPoint.prototype, "latitude", {
+        get: function () {
+            return this._latitude;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(WayPoint.prototype, "longitude", {
+        get: function () {
+            return this._longitude;
+        },
+        enumerable: true,
+        configurable: true
+    });
     return WayPoint;
 }());
 
