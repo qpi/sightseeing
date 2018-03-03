@@ -1,16 +1,25 @@
 import { OsrmService } from '../osrm.service';
+import { Poi } from '../poi/poi';
+import { PoiService } from '../poi/poi.service';
+import { PoiType } from '../poi/poitype';
 import { WayPoint } from '../waypoint';
-import { Injectable } from '@angular/core';
+import { Injectable, Injector } from '@angular/core';
 import { Observable, BehaviorSubject } from 'rxjs';
 
 @Injectable()
 export class RouteService {
+
+  public readonly walkingSpeed = 1.4; // in meter/second
 
   private _startPoint$: BehaviorSubject<WayPoint> = new BehaviorSubject<WayPoint>(null);
   public readonly startPoint$ = this._startPoint$.asObservable();
 
   get startPoint() {
     return this._startPoint$.value;
+  }
+
+  set startPoint( wayPoint: WayPoint ) {
+    this._startPoint$.next(wayPoint);
   }
 
   private _endPoint$: BehaviorSubject<WayPoint> = new BehaviorSubject<WayPoint>(null);
@@ -20,16 +29,34 @@ export class RouteService {
     return this._endPoint$.value;
   }
 
-  private _intermediatePoints$: BehaviorSubject<WayPoint[]> = new BehaviorSubject<WayPoint[]>([]);
-  public readonly intermediatePoints$ = this._intermediatePoints$.asObservable();
+  set endPoint( wayPoint: WayPoint ) {
+    this._endPoint$.next(wayPoint);
+  }
 
-  private _roundtrip$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
-  public readonly roundtrip$ = this._roundtrip$.asObservable();
+  private _isRoundTrip$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  public readonly isRoundTrip$ = this._isRoundTrip$.asObservable();
+
+  get isRoundTrip() {
+    return this._isRoundTrip$.value;
+  }
+
+  set isRoundTrip( isRoundTrip: boolean ) {
+    this._isRoundTrip$.next(isRoundTrip);
+  }
+
+  private _intermediatePoints$: BehaviorSubject<Poi[]> = new BehaviorSubject<Poi[]>([]);
+  public readonly intermediatePoints$ = this._intermediatePoints$.asObservable();
 
   private _routeCoordinates$: BehaviorSubject<WayPoint[]> = new BehaviorSubject<WayPoint[]>([]);
   public readonly routeCoordinates$ = this._routeCoordinates$.asObservable();
 
-  constructor(private _osrmService: OsrmService) {
+  private _routeLength$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
+  public readonly routeLength$ = this._routeLength$.asObservable();
+
+  private _typeToCollect$: BehaviorSubject<PoiType> = new BehaviorSubject<PoiType>(null);
+  public readonly typeToCollect$ = this._typeToCollect$.asObservable();
+
+  constructor(private _osrmService: OsrmService, private _poiService: PoiService) {
     this.startPoint$.subscribe(data => {
       this.calculateRoute();
     });
@@ -39,40 +66,48 @@ export class RouteService {
     this.intermediatePoints$.subscribe(data => {
       this.calculateRoute();
     });
-    this.roundtrip$.subscribe(data => {
+    this.isRoundTrip$.subscribe(data => {
+      if ( this.startPoint !== null ) {
+        this.endPoint = this.startPoint;
+      }
       this.calculateRoute();
     });
+    this.typeToCollect$.subscribe( poiType => this._poiService.updatePoiList(poiType, this.startPoint, this.endPoint) );
+  }
+  public setTypeToCollect( poiType: PoiType ) {
+    this._typeToCollect$.next(poiType);
   }
 
-  public addintermediatePoint( wayPoint: WayPoint ) {
-    this._intermediatePoints$.next([...this._intermediatePoints$.value, wayPoint]);
-  }
-
-  public addStartPoint( wayPoint: WayPoint ) {
-    this._startPoint$.next(wayPoint);
-  }
-
-  public addEndPoint( wayPoint: WayPoint ) {
-    this._endPoint$.next(wayPoint);
+  public addIntermediatePoint( newPoi: Poi ) {
+    if ( this._intermediatePoints$.value.filter( poi => poi.id === newPoi.id).length === 0 ) {
+      this._intermediatePoints$.next([...this._intermediatePoints$.value, newPoi]);
+    }
   }
 
   public calculateRoute(): void {
-    const wayPoints = [];
+
+    let wayPoints: WayPoint[] = [];
 
     if ( this._startPoint$.value !== null) {
       wayPoints.push(this._startPoint$.value);
     }
 
-    wayPoints.concat(this._intermediatePoints$.value);
+    wayPoints = wayPoints.concat(this._intermediatePoints$.value);
 
-    if ( !this._roundtrip$.value && this._endPoint$.value !== null ) {
+    if ( !this.isRoundTrip && this.endPoint !== null ) {
       wayPoints.push(this._endPoint$.value);
     }
 
+    this._poiService.updatePoiList(this._typeToCollect$.value, this.startPoint, this.endPoint);
+
     // minimally 2 point is mandatory for a route
-    if (wayPoints.length < 2 ) { return; }
-    this._osrmService.getRoute(wayPoints, this._roundtrip$.value).subscribe(
+    if (wayPoints.length < 2  ) {
+      this._routeCoordinates$.next(new Array<WayPoint>());
+      return;
+    }
+    this._osrmService.getRoute(wayPoints, this.isRoundTrip).subscribe(
       data => {
+        this._routeLength$.next(data['trips'][0]['distance']);
         const latlngs =
           data['trips'][0].legs.reduce((legsArray, leg) => {
             return legsArray.concat(

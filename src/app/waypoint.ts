@@ -1,3 +1,11 @@
 export class WayPoint {
-  constructor(public latitude: number, public longitude: number) { }
+  constructor(protected _latitude: number, protected _longitude: number) { }
+
+  get latitude(): number {
+    return this._latitude;
+  }
+
+  get longitude(): number {
+    return this._longitude;
+  }
 }

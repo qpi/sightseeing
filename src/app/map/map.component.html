@@ -1,14 +1,90 @@
+<button mat-button [matMenuTriggerFor]="contextMenu" id="contextMenuButton" style="display:none;">Menu</button>
+<mat-menu #contextMenu="matMenu" (close)="onContextMenuClosed()">
+	<button mat-menu-item (click)="setStartPoint(pickPointForContextMenu)">Route from here</button>
+	<button mat-menu-item *ngIf="!isRoundTrip" (click)="setEndPoint(pickPointForContextMenu)">Route to here</button>
+</mat-menu>
 <yaga-map [zoom]="11" [lat]=latitude [lng]=longitude [minZoom]="1"
-[maxZoom]="16" (click)="handleEvent('click', $event);">
+[maxZoom]="16"
+(contextmenu)="handleEvent($event);">
 	<yaga-zoom-control></yaga-zoom-control>
 	<yaga-scale-control [metric]="true" [imperial]="false"></yaga-scale-control>
-	<ng-container *ngFor="let wayPoint of intermediatePoints$ | async">
+	<ng-container *ngIf="startPoint$ | async; let wayPoint;">
 		<yaga-marker [lat]=wayPoint.latitude [lng]=wayPoint.longitude>
+			<yaga-icon [iconUrl]="markerIconRed"
+				[iconSize]="[25, 41]"
+				[iconAnchor]="[13, 41]"
+				[shadowUrl]=markerIconShadow></yaga-icon>
+			<yaga-popup>This is the start point</yaga-popup>
+		</yaga-marker>
+	</ng-container>
+	<ng-container *ngIf="endPoint$ | async; let wayPoint;">
+		<yaga-marker [lat]=wayPoint.latitude [lng]=wayPoint.longitude>
+			<yaga-icon [iconUrl]="markerIconGreen"
+				[iconSize]="[25, 41]"
+				[iconAnchor]="[13, 41]"
+				[shadowUrl]=markerIconShadow></yaga-icon>
+			<yaga-popup>This is the end point</yaga-popup>
+		</yaga-marker>
+	</ng-container>
+	<ng-container *ngIf="!endPoint$ | async">
+	</ng-container>
+	<ng-container *ngFor="let poi of intermediatePoints$ | async">
+		<yaga-marker [lat]=poi.latitude [lng]=poi.longitude>
 			<yaga-icon [iconUrl]=markerIcon
 				[iconSize]="[25, 41]"
 				[iconAnchor]="[13, 41]"
 				[shadowUrl]=markerIconShadow></yaga-icon>
-			<yaga-popup>This is the content of the popup</yaga-popup>
+			<yaga-popup>
+				{{ poi.type.category.name }}/{{ poi.type.title }}<br>
+				<strong>{{ poi.name }}</strong>
+				<ul>
+				<ng-container *ngIf="poi.address">
+					<li><strong>address: </strong> {{poi.address}}</li>
+				</ng-container>
+				<ng-container *ngIf="poi.email">
+					<li><strong>email: </strong> {{poi.email}}</li>
+				</ng-container>
+				<ng-container *ngIf="poi.facebook">
+					<li><strong>facebook: </strong> {{poi.facebook}}</li>
+				</ng-container>
+				<ng-container *ngIf="poi.phone">
+					<li><strong>phone: </strong> {{poi.phone}}</li>
+				</ng-container>
+				<ng-container *ngIf="poi.website">
+					<li><strong>website: </strong> {{poi.website}}</li>
+				</ng-container>
+				</ul>
+			</yaga-popup>
+		</yaga-marker>
+	</ng-container>
+	<ng-container *ngFor="let poi of poiList">
+		<yaga-marker [lat]=poi.latitude [lng]=poi.longitude>
+			<yaga-icon [iconUrl]="markerIconYellow"
+				[iconSize]="[25, 41]"
+				[iconAnchor]="[13, 41]"
+				[shadowUrl]=markerIconShadow></yaga-icon>
+			<yaga-popup>
+				{{ poi.type.category.name }}/{{ poi.type.title }}<br>
+				<strong>{{ poi.name }}</strong>
+				<ul>
+				<ng-container *ngIf="poi.address">
+					<li><strong>address: </strong> {{poi.address}}</li>
+				</ng-container>
+				<ng-container *ngIf="poi.email">
+					<li><strong>email: </strong> {{poi.email}}</li>
+				</ng-container>
+				<ng-container *ngIf="poi.facebook">
+					<li><strong>facebook: </strong> {{poi.facebook}}</li>
+				</ng-container>
+				<ng-container *ngIf="poi.phone">
+					<li><strong>phone: </strong> {{poi.phone}}</li>
+				</ng-container>
+				<ng-container *ngIf="poi.website">
+					<li><strong>website: </strong> {{poi.website}}</li>
+				</ng-container>
+				</ul>
+				<button mat-button color="primary" (click)="addIntermediatePoint($event, poi)">add to route</button>
+			</yaga-popup>
 		</yaga-marker>
 	</ng-container>
 	<yaga-polyline [latLngs]=latlngs></yaga-polyline>

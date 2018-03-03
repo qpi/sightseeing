@@ -7,12 +7,12 @@ import { YagaModule } from '@yaga/leaflet-ng2';
 import { SightseeingRoutingModule } from './sightseeing-routing.module';
 import { SightseeingComponent } from './sightseeing.component';
 import { MaterialModule } from './material.module';
+ import { FlexLayoutModule } from '@angular/flex-layout';
 import { MapComponent } from './map/map.component';
 import { HomeComponent } from './home/home.component';
-import { MapService } from './map/map.service';
 import { OsrmService } from './osrm.service';
 import { OverpassService } from './overpass.service';
-import { PoiService } from './poi.service';
+import { PoiService } from './poi/poi.service';
 import { RouteComponent } from './route/route.component';
 import { RouteService } from './route/route.service';
 
@@ -27,6 +27,7 @@ import { RouteService } from './route/route.service';
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
+    FlexLayoutModule,
     MaterialModule,
     SightseeingRoutingModule,
     YagaModule,
@@ -34,7 +35,7 @@ import { RouteService } from './route/route.service';
     FormsModule,
     ReactiveFormsModule
   ],
-  providers: [MapService, RouteService, OsrmService, PoiService, OverpassService],
+  providers: [RouteService, OsrmService, PoiService, OverpassService],
   bootstrap: [SightseeingComponent]
 })
 export class SightseeingModule {}

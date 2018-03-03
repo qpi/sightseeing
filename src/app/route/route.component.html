@@ -3,73 +3,41 @@
 	
 		<mat-card>
   			<mat-form-field>
-    			<input matInput placeholder="Free time You have?" type="number">
+    			<input matInput placeholder="Free time You have?" type="number" [formControl]="freeTimeField">
     			<span matSuffix>&nbsp;minute</span>
-  			</mat-form-field>
-  		
-  			<div layout="row">
-				<mat-form-field flex>
+  			</mat-form-field>  		
+  			<div fxLayout="row">
+  				<mat-input-container fxFlex>
 					<input matInput placeholder="Start coordinates" readonly [value]="startPoint">
-	  			</mat-form-field>
-	  			<ng-container flex>
-	  				<mat-button-toggle value="left" [disabled]="pickStartIsDisabled" [checked]="pickStartButton" (change)="pickStartChange($event)">
-      					<mat-icon>add_location</mat-icon>
-    				</mat-button-toggle>
-	  			</ng-container>
-	  		</div>
-	  		<div layout="row">
-				<mat-form-field flex>
+	  			</mat-input-container>
+  				<mat-input-container fxFlex *ngIf="!isRoundTrip">
 					<input matInput placeholder="End coordinates" readonly [value]="endPoint">
-	  			</mat-form-field>
-	  			<ng-container flex>
-	  				<mat-button-toggle value="left" [disabled]="pickEndIsDisabled" [checked]="pickEndButton" (change)="pickEndChange($event)">
-      					<mat-icon>add_location</mat-icon>
-    				</mat-button-toggle>
-	  			</ng-container>
+	  			</mat-input-container>
 	  		</div>
+	  		<mat-checkbox [(ngModel)]="isRoundTrip">Round trip</mat-checkbox>
   			<br>
-
-  			<mat-menu #rootMenu="matMenu">
-  				<ng-container *ngFor="let poiCategory of poiCategories">
-  					<button mat-menu-item [matMenuTriggerFor]="submenu">{{poiCategory.name}}</button>
-  					<mat-menu #submenu="matMenu">
-						<ng-container *ngFor="let poiType of poiCategory.getIds()">
-							<button mat-menu-item (click)="poiTypeToCollect = poiType">{{poiType.title}}</button>
-						</ng-container>
-					</mat-menu>
-<!--   				<button mat-menu-item [matMenuTriggerFor]="amenitySubMenu">{{poiCategories[0].name}}</button> -->
-<!--   				<button mat-menu-item [matMenuTriggerFor]="tourismSubMenu">{{poiCategories[1].name}}</button> -->
-<!--   				<button mat-menu-item [matMenuTriggerFor]="leisureSubMenu">{{poiCategories[2].name}}</button> -->
-				</ng-container>
-			</mat-menu>
-
-			<mat-menu #amenity="matMenu">
-				<ng-container *ngFor="let poiType of poiCategories[0].getIds()">
-					<button mat-menu-item (click)="poiTypeToCollect = poiType">{{poiType.title}}</button>
-				</ng-container>
-			</mat-menu>
-			
-			<mat-menu #tourism="matMenu">
-				<ng-container *ngFor="let poiType of poiCategories[1].getIds()">
-					<button mat-menu-item (click)="poiTypeToCollect = poiType">{{poiType.title}}</button>
-				</ng-container>
-			</mat-menu>
-			
-			<mat-menu #leisure="matMenu">
-				<ng-container *ngFor="let poiType of poiCategories[2].getIds()">
-					<button mat-menu-item (click)="poiTypeToCollect = poiType">{{poiType.title}}</button>
-				</ng-container>
-			</mat-menu>
-
-			<div layout="row">
-				<ng-container flex>
-					<button mat-raised-button [matMenuTriggerFor]="rootMenu">Choose POIs</button>
-				</ng-container>
-				<ng-container flex *ngIf="poiTypeToCollect !== null">
-					<button mat-button (click)="poiTypeToCollect = null">{{poiTypeToCollect.title}}<mat-icon>clear</mat-icon></button>
-				</ng-container>
+			<div fxLayout="row" fxLayoutAlign="end center" >
+				<mat-form-field fxFlex>
+				  <mat-select placeholder="choose POI type" [(ngModel)]="poiTypeToCollect">
+				    <mat-option>-- None --</mat-option>
+				    <ng-container *ngFor="let poiCategory of poiCategories">
+				    	<mat-optgroup [label]="poiCategory.name">
+				    		<ng-container *ngFor="let poiType of poiCategory.typeList">
+				    			<mat-option [value]="poiType">{{poiType.title}}</mat-option>
+				    		</ng-container>
+				    	</mat-optgroup>
+				    </ng-container>
+				  </mat-select>
+				</mat-form-field>
+				<div fxFlex>
+					<button mat-raised-button (click)="poiTypeToCollect = null">clear POIs</button>
+				</div>
+			</div>
+			<div *ngIf="routeLength > 0">
+				Route length is <strong>{{routeLength}} meter</strong> and the duration is <strong>{{routeDuration}}</strong> long
 			</div>
 		</mat-card>
+		
 	
 	</mat-sidenav>
 	<app-map></app-map>

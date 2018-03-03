@@ -28,5 +28,5 @@ export enum PoiCategoryAmenityEnum {
   ice_cream = 'Icecream',
   pub = 'Pub',
   restaurant = 'Restaurant',
-  casino = 'Casion'
+  casino = 'Casino'
 }
