@@ -1,3 +1,4 @@
+import { MapService } from '../map/map.service';
 import { OsrmService } from './osrm.service';
 import { Poi } from '../poi/poi';
 import { PoiService } from '../poi/poi.service';
@@ -63,7 +64,13 @@ export class RouteService {
   private _typeToCollect$: BehaviorSubject<PoiType> = new BehaviorSubject<PoiType>(null);
   public readonly typeToCollect$ = this._typeToCollect$.asObservable();
 
-  constructor(private _http: HttpClient, private _osrmService: OsrmService, private _poiService: PoiService, public snackBar: MatSnackBar) {
+  constructor(
+    private _http: HttpClient,
+    private _osrmService: OsrmService,
+    private _poiService: PoiService,
+    private _mapService: MapService,
+    public snackBar: MatSnackBar
+  ) {
     this.startPoint$.subscribe(data => {
       this.calculateRoute();
     });
@@ -91,15 +98,24 @@ export class RouteService {
     }
   }
 
-  public emptyRoute(): void {
+  public emptyRoute( resetMap: boolean): void {
+    this._loadingInProgress = true;
+    this._typeToCollect$.next(null);
+    this._poiService.emptyPoiList();
     this._startPoint$.next(null);
     this._endPoint$.next(null);
     this._intermediatePoints$.next(new Array<Poi>());
     this._isRoundTrip$.next(false);
     this._routeLength$.next(0);
     this._routeCoordinates$.next(new Array<WayPoint>());
-    this._typeToCollect$.next(null);
-    this._poiService.emptyPoiList();
+    if ( resetMap ) {
+      // it sets back the map to Budapest
+      this._mapService.reset();
+    }
+    setTimeout(() => {
+      // this flag is necessary because the subscriptions can trigger each other triggering the calculateRoute()
+      this._loadingInProgress = false;
+    }, 500);
   }
 
   public loadRoute( route: SightseeingRoute ): void {
@@ -109,6 +125,17 @@ export class RouteService {
     this._intermediatePoints$.next(route.intermediatePoints);
     this._startPoint$.next(route.startPoint);
     this._endPoint$.next(route.endPoint);
+    if ( route.mapLatitude ) {
+      this._mapService.latitude = route.mapLatitude;
+    }
+    if ( route.mapLongitude ) {
+      this._mapService.longitude = route.mapLongitude;
+    }
+    if ( route.mapZoom ) {
+      this._mapService.zoom = route.mapZoom;
+    }
+    // this needs becasue if before the load there were POI to show it will be visible
+    this._typeToCollect$.next(null);
     setTimeout(() => {
       this._loadingInProgress = false;
       this.calculateRoute();
@@ -122,7 +149,10 @@ export class RouteService {
       intermediatePoints: this._intermediatePoints$.value,
       endPoint: this._endPoint$.value,
       isRoundTrip: this._isRoundTrip$.value,
-      routeLength: this._routeLength$.value
+      routeLength: this._routeLength$.value,
+      mapLatitude: this._mapService.latitude,
+      mapLongitude: this._mapService.longitude,
+      mapZoom: this._mapService.zoom
     });
 
     return Observable.create((observer: Observer<SightseeingRoute>) => {

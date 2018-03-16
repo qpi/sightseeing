@@ -6,6 +6,7 @@ import { Poi } from '../poi/poi';
 import { PoiService } from '../poi/poi.service';
 import { RouteService } from '../route/route.service';
 import { WayPoint } from '../poi/waypoint';
+import { MapService } from './map.service';
 import { PickType } from './picktype';
 import { MatMenuTrigger, MatMenu } from '@angular/material/menu';
 import { Observable, Subscriber} from 'rxjs/Rx';
@@ -23,7 +24,8 @@ export class MapComponent implements OnInit {
     private cd: ChangeDetectorRef,
     private _osrmService: OsrmService,
     private _routeService: RouteService,
-    private _poiService: PoiService
+    private _poiService: PoiService,
+    private _mapService: MapService
   ) { }
 
   @ViewChild(MatMenuTrigger) contextMenu: MatMenuTrigger;
@@ -34,10 +36,37 @@ export class MapComponent implements OnInit {
   public markerIconRed = require('../../assets/marker-icon-red.png');
   public markerIconShadow = require('../../assets/marker-shadow.png');
 
+  public mapModel;
+
   private pickCoordintePrecision = 6;
 
-  latitude = 47.498333;
-  longitude = 19.040833;
+  get latitude() {
+    return this._mapService.latitude;
+  }
+
+  set latitude( value: number) {
+    this._mapService.latitude = value;
+  }
+
+  get longitude() {
+    return this._mapService.longitude;
+  }
+
+  set longitude( value: number) {
+    this._mapService.longitude = value;
+  }
+
+  get zoom() {
+    return this._mapService.zoom;
+  }
+
+  set zoom( value: number) {
+    this._mapService.zoom = value;
+  }
+
+//  public latitude$: Observable<number>;
+//  public longitude$: Observable<number>;
+//  public zoom$: Observable<number>;
 
   public startPoint$: Observable<WayPoint>;
   public intermediatePoints$: Observable<Poi[]>;
@@ -97,6 +126,11 @@ export class MapComponent implements OnInit {
   }
 
   ngOnInit() {
+//
+//    this.latitude$ = this._mapService.latitude$;
+//    this.longitude$ = this._mapService.longitude$;
+//    this.zoom$ = this._mapService.zoom$;
+
     this.startPoint$ = this._routeService.startPoint$;
     this.intermediatePoints$ = this._routeService.intermediatePoints$;
     this.endPoint$ = this._routeService.endPoint$;

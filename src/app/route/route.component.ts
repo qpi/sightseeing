@@ -22,7 +22,10 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 })
 export class RouteComponent implements OnInit {
 
-  constructor(private _routeService: RouteService, private _poiService: PoiService, public snackBar: MatSnackBar) {}
+  constructor(
+    private _routeService: RouteService,
+    private _poiService: PoiService,
+    public snackBar: MatSnackBar) {}
 
   public freeTimeField: FormControl = new FormControl();
 
@@ -103,6 +106,10 @@ export class RouteComponent implements OnInit {
         duration: 5000,
       });
     });
+  }
+
+  public reset() {
+    this._routeService.emptyRoute(false);
   }
 
   ngOnInit() {

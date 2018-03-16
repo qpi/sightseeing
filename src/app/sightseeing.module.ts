@@ -24,6 +24,7 @@ import { TokenInterceptor } from './auth/token.interceptor';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { MyRoutesComponent } from './my-routes/my-routes.component';
 import { CommunityRoutesComponent } from './community-routes/community-routes.component';
+import { MapService } from './map/map.service';
 
 
 @NgModule({
@@ -59,7 +60,8 @@ import { CommunityRoutesComponent } from './community-routes/community-routes.co
       provide: HTTP_INTERCEPTORS,
       useClass: TokenInterceptor,
       multi: true
-    }],
+    },
+    MapService],
   bootstrap: [SightseeingComponent]
 })
 export class SightseeingModule {}

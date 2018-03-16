@@ -3,7 +3,7 @@
 	<button mat-menu-item (click)="setStartPoint(pickPointForContextMenu)">Route from here</button>
 	<button mat-menu-item *ngIf="!isRoundTrip" (click)="setEndPoint(pickPointForContextMenu)">Route to here</button>
 </mat-menu>
-<yaga-map [zoom]="11" [lat]=latitude [lng]=longitude [minZoom]="1"
+<yaga-map [(zoom)]="zoom" [(lat)]="latitude" [(lng)]="longitude" [minZoom]="1"
 [maxZoom]="16"
 (contextmenu)="handleEvent($event);">
 	<yaga-zoom-control></yaga-zoom-control>

@@ -15,6 +15,9 @@ export class SightseeingRoute extends Serializable {
   public endPoint: WayPoint = null;
   public isRoundTrip: boolean = null;
   public routeLength: number = null;
+  public mapLatitude: number = null;
+  public mapLongitude: number = null;
+  public mapZoom: number = null;
 
   public constructor( routeObject: any) {
     super();

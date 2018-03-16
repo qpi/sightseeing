@@ -21,7 +21,7 @@ export class LoginComponent implements OnInit {
     this.user.getFormGroup().disable();
     this._authService.login(this.user).subscribe( userSession => {
       this.errorMessage = '';
-      this._routeService.emptyRoute();
+      this._routeService.emptyRoute(true);
       this._router.navigate(['route']);
     }, error => {
       console.log(this._authService.getCurrentUser());
