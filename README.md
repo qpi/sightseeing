@@ -1,6 +1,6 @@
 # Sightseeing Application
 
-This project was used [Angular CLI](https://github.com/angular/angular-cli) version 1.6.7.
+This project is used [Angular CLI](https://github.com/angular/angular-cli) version 1.6.7.
 
 ## Backend server
 
