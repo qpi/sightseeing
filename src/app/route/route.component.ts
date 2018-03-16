@@ -6,13 +6,14 @@ import { PoiCategoryLeisure } from '../poi/poi-category-leisure';
 import { PoiCategoryTourism } from '../poi/poi-category-tourism';
 import { PoiService } from '../poi/poi.service';
 import { PoiType } from '../poi/poitype';
-import { WayPoint } from '../waypoint';
+import { WayPoint } from '../poi/waypoint';
 import { RouteService } from './route.service';
 import { Component, OnInit } from '@angular/core';
 import { MatButtonToggleChange } from '@angular/material/button-toggle';
 import { Observable, BehaviorSubject } from 'rxjs';
 import 'rxjs/add/operator/debounceTime';
-import { FormControl } from '@angular/forms';
+import { FormControl, Validators } from '@angular/forms';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-route',
@@ -21,7 +22,7 @@ import { FormControl } from '@angular/forms';
 })
 export class RouteComponent implements OnInit {
 
-  constructor(private _routeService: RouteService, private _poiService: PoiService) {}
+  constructor(private _routeService: RouteService, private _poiService: PoiService, public snackBar: MatSnackBar) {}
 
   public freeTimeField: FormControl = new FormControl();
 
@@ -32,6 +33,8 @@ export class RouteComponent implements OnInit {
   private _routeLength = 0;
   private _routeDuration = 0;
   private _poiTypeToShow: PoiType;
+
+  public routename$: FormControl = new FormControl('', [Validators.required, Validators.minLength(5), Validators.maxLength(20)]);
 
   get poiTypeToCollect() {
     return this._poiTypeToShow;
@@ -86,6 +89,20 @@ export class RouteComponent implements OnInit {
     if ( freeTime < this._routeDuration ) {
       this.freeTimeField.setErrors({'notenoughtime': true});
     }
+  }
+
+  public save( event ) {
+    this._routeService.saveRoute( this.routename$.value ).subscribe( result => {
+      this.snackBar.open('The route is successfuly saved', 'close', {
+        duration: 5000,
+      });
+      this.routename$.setValue('');
+      this.routename$.setErrors( null );
+    }, error => {
+      this.snackBar.open('There is unexpected error while saving the route', 'close', {
+        duration: 5000,
+      });
+    });
   }
 
   ngOnInit() {

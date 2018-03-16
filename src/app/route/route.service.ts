@@ -1,13 +1,20 @@
-import { OsrmService } from '../osrm.service';
+import { OsrmService } from './osrm.service';
 import { Poi } from '../poi/poi';
 import { PoiService } from '../poi/poi.service';
 import { PoiType } from '../poi/poitype';
-import { WayPoint } from '../waypoint';
+import { WayPoint } from '../poi/waypoint';
+import { SightseeingRoute } from './sightseeing-route';
 import { Injectable, Injector } from '@angular/core';
-import { Observable, BehaviorSubject } from 'rxjs';
+import { Observable, BehaviorSubject, Observer } from 'rxjs';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Injectable()
 export class RouteService {
+
+  private _awsBaseUrl = 'https://4yba8m413d.execute-api.eu-central-1.amazonaws.com/dev/route';
+
+  private _loadingInProgress = false;
 
   public readonly walkingSpeed = 1.4; // in meter/second
 
@@ -56,7 +63,7 @@ export class RouteService {
   private _typeToCollect$: BehaviorSubject<PoiType> = new BehaviorSubject<PoiType>(null);
   public readonly typeToCollect$ = this._typeToCollect$.asObservable();
 
-  constructor(private _osrmService: OsrmService, private _poiService: PoiService) {
+  constructor(private _http: HttpClient, private _osrmService: OsrmService, private _poiService: PoiService, public snackBar: MatSnackBar) {
     this.startPoint$.subscribe(data => {
       this.calculateRoute();
     });
@@ -84,7 +91,78 @@ export class RouteService {
     }
   }
 
+  public emptyRoute(): void {
+    this._startPoint$.next(null);
+    this._endPoint$.next(null);
+    this._intermediatePoints$.next(new Array<Poi>());
+    this._isRoundTrip$.next(false);
+    this._routeLength$.next(0);
+    this._routeCoordinates$.next(new Array<WayPoint>());
+    this._typeToCollect$.next(null);
+    this._poiService.emptyPoiList();
+  }
+
+  public loadRoute( route: SightseeingRoute ): void {
+    this._loadingInProgress = true;
+    this._routeLength$.next(route.routeLength);
+    this._isRoundTrip$.next(route.isRoundTrip);
+    this._intermediatePoints$.next(route.intermediatePoints);
+    this._startPoint$.next(route.startPoint);
+    this._endPoint$.next(route.endPoint);
+    setTimeout(() => {
+      this._loadingInProgress = false;
+      this.calculateRoute();
+    }, 500);
+  }
+
+  public saveRoute( name: string ): Observable<Object> {
+    const route: SightseeingRoute = new SightseeingRoute({
+      name: name,
+      startPoint: this._startPoint$.value,
+      intermediatePoints: this._intermediatePoints$.value,
+      endPoint: this._endPoint$.value,
+      isRoundTrip: this._isRoundTrip$.value,
+      routeLength: this._routeLength$.value
+    });
+
+    return Observable.create((observer: Observer<SightseeingRoute>) => {
+      this._http.post( this._awsBaseUrl, route ).subscribe( (result: Object) => {
+        if ( result['statusCode'] && result['statusCode'] === 201 ) {
+          observer.next(new SightseeingRoute(result['body']));
+          observer.complete();
+        } else {
+          observer.error(result);
+        }
+      }, error => {
+        observer.error(error);
+      });
+    });
+  }
+
+  public getRoutes( others: boolean): Observable<SightseeingRoute[]> {
+    return Observable.create((observer: Observer<Object>) => {
+      this._http.get( this._awsBaseUrl + '/' + ( others ? 'others' : 'my' )).subscribe( (result: Object) => {
+        if ( result['statusCode'] && result['statusCode'] === 200 ) {
+          const routes = result['body'].map( route => {
+            return new SightseeingRoute(route);
+          });
+          observer.next(routes);
+          observer.complete();
+        } else {
+          observer.error(result);
+        }
+      }, error => {
+        observer.error(error);
+      });
+    });
+  }
+
   public calculateRoute(): void {
+
+    if ( this._loadingInProgress ) {
+      // it needs to avoid the multiple server call because the subscriptions triggers
+      return;
+    }
 
     let wayPoints: WayPoint[] = [];
 
@@ -118,7 +196,21 @@ export class RouteService {
           }, new Array<WayPoint>());
         this._routeCoordinates$.next(latlngs);
       },
-      err => console.error(err)
+      error => {
+        if ( error.status === 429 ) {
+          this.snackBar.open(
+            'Sorry, we reached the rate limit of the planning service. Please wait a minute and continue after your route planning',
+            'close',
+            {duration: 5000}
+          );
+        } else {
+          this.snackBar.open(
+            'Sorry, unexpectied error happend while called the planning service.',
+            'close',
+            {duration: 5000}
+          );
+        }
+      }
     );
   }
 

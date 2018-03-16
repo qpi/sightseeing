@@ -1,0 +1,29 @@
+<div fxLayout="row" fxLayoutAlign="center">
+	<mat-card >
+		<form (ngSubmit)="onSubmit()" [formGroup]="user.getFormGroup()">
+			<div fxLayout="column">
+				<h2>Sign up for the sightseeing application</h2>
+				<mat-form-field fxFlex>
+		   			<input matInput placeholder="Username" type="text" [formControl]="user.getFormControl('username')">
+		   			<mat-error *ngIf="user.getFormControl('username').invalid">The username is mandatory and length has to be between 8-15 characters length</mat-error>
+				</mat-form-field>
+				<mat-form-field fxFlex>
+		   			<input matInput placeholder="Password" type="password" [formControl]="user.getFormControl('password')">
+		   			<mat-error *ngIf="user.getFormControl('password').invalid">The Password is mandatory and at least 8 characters long</mat-error>
+				</mat-form-field>
+				<mat-form-field fxFlex>
+		   			<input matInput placeholder="Name" type="text" [formControl]="user.getFormControl('name')">
+		   			<mat-error *ngIf="user.getFormControl('name').invalid">The name is mandatory and length can be maximum 20 characters length</mat-error>
+				</mat-form-field>
+				<mat-form-field fxFlex>
+		   			<input matInput [disabled]="signupSuccess" placeholder="Email" type="text" [formControl]="user.getFormControl('email')">
+		   			<mat-error *ngIf="user.getFormControl('email').invalid">The email is mandatory and has to be valid email addrress</mat-error>
+				</mat-form-field>
+				<div class="success" *ngIf="signupSuccess">Check Your e-mails, we sent an activation link</div>
+				<div class="error" *ngIf="errorMessage">{{errorMessage}}</div>
+				<button mat-raised-button color="primary" type="submit" 
+					[disabled]="user.getFormControl('username').invalid || user.getFormControl('password').invalid || user.getFormControl('name').invalid || user.getFormControl('email').invalid || signupSuccess">Submit</button>
+			</div>
+		</form>
+	</mat-card>
+</div>

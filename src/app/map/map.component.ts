@@ -1,11 +1,11 @@
 import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, ViewChild } from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {LeafletEvent, LeafletMouseEvent, point} from 'leaflet';
-import { OsrmService} from '../osrm.service';
+import { OsrmService} from '../route/osrm.service';
 import { Poi } from '../poi/poi';
 import { PoiService } from '../poi/poi.service';
 import { RouteService } from '../route/route.service';
-import { WayPoint } from '../waypoint';
+import { WayPoint } from '../poi/waypoint';
 import { PickType } from './picktype';
 import { MatMenuTrigger, MatMenu } from '@angular/material/menu';
 import { Observable, Subscriber} from 'rxjs/Rx';
@@ -28,11 +28,11 @@ export class MapComponent implements OnInit {
 
   @ViewChild(MatMenuTrigger) contextMenu: MatMenuTrigger;
 
-  private markerIcon = require('../../assets/marker-icon.png');
-  private markerIconGreen = require('../../assets/marker-icon-green.png');
-  private markerIconYellow = require('../../assets/marker-icon-yellow.png');
-  private markerIconRed = require('../../assets/marker-icon-red.png');
-  private markerIconShadow = require('../../assets/marker-shadow.png');
+  public markerIcon = require('../../assets/marker-icon.png');
+  public markerIconGreen = require('../../assets/marker-icon-green.png');
+  public markerIconYellow = require('../../assets/marker-icon-yellow.png');
+  public markerIconRed = require('../../assets/marker-icon-red.png');
+  public markerIconShadow = require('../../assets/marker-shadow.png');
 
   private pickCoordintePrecision = 6;
 

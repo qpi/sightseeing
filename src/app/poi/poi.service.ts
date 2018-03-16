@@ -1,8 +1,8 @@
-import { OverpassService } from '../overpass.service';
+import { OverpassService } from './overpass.service';
 import { Poi } from './poi';
 import { PoiType } from './poitype';
 import { RouteService } from '../route/route.service';
-import { WayPoint } from '../waypoint';
+import { WayPoint } from './waypoint';
 import { Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material';
 import { BehaviorSubject } from 'rxjs';
@@ -14,6 +14,10 @@ export class PoiService {
   public readonly poiList$ = this._poiList$.asObservable();
 
   constructor(private _overpassService: OverpassService, public snackBar: MatSnackBar) {}
+
+  public emptyPoiList() {
+    this._poiList$.next(<Poi[]>[]);
+  }
 
   public updatePoiList( poiType: PoiType, startPoint: WayPoint, endPoint: WayPoint ) {
       if (
@@ -122,7 +126,7 @@ export class PoiService {
             }
           });
         } else {
-          this._poiList$.next(<Poi[]>[]);
+          this.emptyPoiList();
         }
       }
   }

@@ -29,12 +29,22 @@
 				    </ng-container>
 				  </mat-select>
 				</mat-form-field>
-				<div fxFlex>
+				<div fxFlex *ngIf="poiTypeToCollect !== null">
 					<button mat-raised-button (click)="poiTypeToCollect = null">clear POIs</button>
 				</div>
 			</div>
 			<div *ngIf="routeLength > 0">
 				Route length is <strong>{{routeLength}} meter</strong> and the duration is <strong>{{routeDuration}}</strong> long
+			</div>
+			<h4>You can save your route:</h4>
+			<div fxLayout="row" fxLayoutAlign="end center" class="saveContainer">
+				<mat-form-field fxFlex>
+					<input matInput placeholder="Name of the route" [formControl]="routename$" [disabled]="!(startPoint && endPoint)">
+					<mat-error *ngIf="routename$.invalid">The length of the route name has to be between 5-20 characters</mat-error>
+				</mat-form-field>
+				<div fxFlex>
+					<button mat-raised-button color="primary" [disabled]="!( routename$.valid && startPoint && endPoint)" (click)="save($event)">Save Route</button>
+				</div>
 			</div>
 		</mat-card>
 		

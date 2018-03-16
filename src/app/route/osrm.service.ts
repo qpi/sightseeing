@@ -1,4 +1,4 @@
-import {WayPoint} from './waypoint';
+import {WayPoint} from '../poi/waypoint';
 import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 

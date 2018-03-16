@@ -1,4 +1,4 @@
-import { PoiType } from './poi/poitype';
+import { PoiType } from './poitype';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
@@ -18,7 +18,7 @@ export class OverpassService {
     rightTopLatitude: number
   ) {
     const url = this.url
-      .replace(/\{poi-group\}/gi, poiType.category.id.toString())
+      .replace(/\{poi-group\}/gi, poiType.category.toLowerCase().toString())
       .replace(/\{type\}/gi, poiType.id.toString())
       .replace(/\{left-bottom-longitude\}/gi, leftBottomLongitude.toString())
       .replace(/\{left-bottom-latitude\}/gi, leftBottomLatitude.toString())

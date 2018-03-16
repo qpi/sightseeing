@@ -1,0 +1,20 @@
+<div fxLayout="row" fxLayoutAlign="center">
+	<mat-card >
+		<form (ngSubmit)="onSubmit()" [formGroup]="user.getFormGroup()">
+			<div fxLayout="column">
+				<h2>Login to sightseeing application</h2>
+				<mat-form-field fxFlex>
+		   			<input matInput placeholder="Username" type="text" [formControl]="user.getFormControl('username')">
+		   			<mat-error *ngIf="user.getFormControl('username').invalid">The username is mandatory and length has to be between 8-15 characters length</mat-error>
+				</mat-form-field>
+				<mat-form-field fxFlex>
+		   			<input matInput placeholder="Password" type="password" [formControl]="user.getFormControl('password')">
+		   			<mat-error *ngIf="user.getFormControl('password').invalid">The Password is mandatory and at least 8 characters long</mat-error>
+				</mat-form-field>
+				<div class="error" *ngIf="errorMessage">{{errorMessage}}</div>
+				<button mat-raised-button color="primary" type="submit" 
+					[disabled]="user.getFormControl('username').invalid || user.getFormControl('password').invalid">Submit</button>
+			</div>
+		</form>
+	</mat-card>
+</div>

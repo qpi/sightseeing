@@ -1,0 +1,18 @@
+<div fxLayout="row" fxLayoutAlign="center">
+	<mat-card>
+		<h3>Community Routes</h3>
+		<div>Please choose a route to load it:</div>
+		<div *ngIf="isLoading" fxLayout="row" fxLayoutAlign="center">
+			<mat-spinner></mat-spinner>
+		</div>
+		<mat-nav-list>
+			<ng-container *ngFor="let route of routes">
+  				<mat-list-item (click)="load(route)">
+  					<span class="routeUserId" fxFlex="20">{{route.userId}}</span>
+	  				<span class="routeName" fxFlex>{{route.name}}</span>
+	  				<span class="routeLength" fxFlex="20">{{route.routeLength}} meter(s)</span>
+  				</mat-list-item>
+  			</ng-container>
+		</mat-nav-list>
+	</mat-card>
+</div>
